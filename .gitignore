@@ -1,0 +1,10 @@
+.idea/
+
+# Build Files
+target/
+project/target/
+project/project/
+
+FavColorAPI/target/
+FavColorAPI/project/target/
+FavColorAPI/project/project/
