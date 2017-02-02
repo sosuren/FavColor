@@ -19,11 +19,18 @@ lazy val root = Project(
   id = "root",
   base = file("."),
   settings = projectSettings ++ Seq(name := "fav-color"),
-  aggregate = Seq(api)
+  aggregate = Seq(core, api)
+)
+
+lazy val core = Project(
+  id = "core",
+  base = file("./FavColorCore"),
+  settings = projectSettings ++ Seq(name := "fav-color-core")
 )
 
 lazy val api = Project(
   id = "api",
   base = file("./FavColorAPI"),
-  settings = projectSettings ++ Seq(name := "fav-color-api") ++ Seq(libraryDependencies ++= akkaDependencies)
+  settings = projectSettings ++ Seq(name := "fav-color-api") ++ Seq(libraryDependencies ++= akkaDependencies),
+  dependencies = Seq(core)
 )
