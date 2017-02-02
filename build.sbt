@@ -34,3 +34,10 @@ lazy val api = Project(
   settings = projectSettings ++ Seq(name := "fav-color-api") ++ Seq(libraryDependencies ++= akkaDependencies),
   dependencies = Seq(core)
 )
+
+lazy val client = Project(
+  id = "client",
+  base = file("./FavColorClient"),
+  settings = projectSettings ++ Seq(name := "fav-color-client") ++ Seq(libraryDependencies ++= akkaDependencies),
+  dependencies = Seq(core)
+)
