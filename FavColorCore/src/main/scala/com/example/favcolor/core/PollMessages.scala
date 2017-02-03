@@ -9,7 +9,7 @@ object PollMessages {
   @SerialVersionUID(1L)
   case class Color(id: Long, name: String, code: String) extends PollMessage
   @SerialVersionUID(1L)
-  case class Poll(first: (Color, Int), second: (Color, Int), third: (Color, Int)) extends PollMessage
+  case class Poll(id: Long, first: (Color, Int), second: (Color, Int), third: (Color, Int)) extends PollMessage
 
   object ColorSelect extends Enumeration {
     type ColorSelect = Value

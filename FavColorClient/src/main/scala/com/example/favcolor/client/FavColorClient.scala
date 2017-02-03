@@ -17,6 +17,7 @@ object FavColorClient extends App {
       .withFallback(ConfigFactory.load())
   )
 
+  val favColorApiGuardianPath = "/user/fav-color-guardian"
   val initialContactPoints = Set(
     ActorPath.fromString("akka.tcp://fav-color-api@127.0.0.1:2551/system/receptionist"),
     ActorPath.fromString("akka.tcp://fav-color-api@127.0.0.1:2552/system/receptionist")
@@ -26,25 +27,19 @@ object FavColorClient extends App {
     ClusterClientSettings(system).withInitialContacts(initialContactPoints)
   ))
 
-  println("Sleeping ....")
-
-  Thread.sleep(6000)
-
-  println("Sleeping Done!!!")
-
-  colorPoll ! ClusterClient.Send("/user/colorPoll", Vote(ColorSelect.First), localAffinity =  false)
-  colorPoll ! ClusterClient.Send("/user/colorPoll", Vote(ColorSelect.Second), localAffinity = false)
+  colorPoll ! ClusterClient.Send(favColorApiGuardianPath, Vote(ColorSelect.First), localAffinity =  false)
+  colorPoll ! ClusterClient.Send(favColorApiGuardianPath, Vote(ColorSelect.Second), localAffinity = false)
 
   import scala.concurrent.duration._
   import scala.concurrent.ExecutionContext.Implicits.global
 
   implicit val timeout: Timeout = 2 seconds
 
-  (colorPoll ? ClusterClient.Send("/user/colorPoll", GetPoll, localAffinity =  false)).mapTo[Poll] map {
+  (colorPoll ? ClusterClient.Send(favColorApiGuardianPath, GetPoll, localAffinity =  false)).mapTo[Poll] map {
     case poll =>
       println(s"Got Poll: $poll")
 
-      (colorPoll ? ClusterClient.Send("/user/colorPoll", NextColorPoll, localAffinity = false)).mapTo[Poll] map {
+      (colorPoll ? ClusterClient.Send(favColorApiGuardianPath, NextColorPoll, localAffinity = false)).mapTo[Poll] map {
         case nextPoll =>
           println(s"Next Poll: $nextPoll")
       }

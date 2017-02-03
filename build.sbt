@@ -8,11 +8,26 @@ lazy val projectSettings = Seq(
 )
 
 val akkaVersion = "2.4.2"
-val akkaDependencies = Seq(
+val sparkStreamingVer = "2.1.0"
+val sparkStreamingKafkaVer = "1.6.3"
+val sparkCassandraConnectorVer = "1.6.4"
+
+val akkaDep = Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
   "com.typesafe.akka" %% "akka-cluster" % akkaVersion,
   "com.typesafe.akka" %% "akka-cluster-tools" % akkaVersion,
   "com.typesafe.akka" %% "akka-cluster-metrics" % akkaVersion
+)
+val sparkStreamingDep = Seq(
+  "org.apache.spark" %% "spark-streaming" % sparkStreamingVer
+)
+val sparkStreamingKafkaDep = Seq(
+  "org.apache.spark" %% "spark-streaming-kafka" % sparkStreamingKafkaVer
+)
+val apiDep = akkaDep ++ Seq(
+  "org.apache.spark" %% "spark-streaming" % sparkStreamingVer,
+  "com.datastax.spark" %% "spark-cassandra-connector" % sparkCassandraConnectorVer,
+  "com.datastax.spark" %% "spark-cassandra-connector-embedded" % sparkCassandraConnectorVer
 )
 
 lazy val root = Project(
@@ -31,13 +46,13 @@ lazy val core = Project(
 lazy val api = Project(
   id = "api",
   base = file("./FavColorAPI"),
-  settings = projectSettings ++ Seq(name := "fav-color-api") ++ Seq(libraryDependencies ++= akkaDependencies),
+  settings = projectSettings ++ Seq(name := "fav-color-api") ++ Seq(libraryDependencies ++= apiDep),
   dependencies = Seq(core)
 )
 
 lazy val client = Project(
   id = "client",
   base = file("./FavColorClient"),
-  settings = projectSettings ++ Seq(name := "fav-color-client") ++ Seq(libraryDependencies ++= akkaDependencies),
+  settings = projectSettings ++ Seq(name := "fav-color-client") ++ Seq(libraryDependencies ++= akkaDep),
   dependencies = Seq(core)
 )
