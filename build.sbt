@@ -8,9 +8,10 @@ lazy val projectSettings = Seq(
 )
 
 val akkaVersion = "2.4.2"
-val sparkStreamingVer = "2.1.0"
+val sparkVersion = "1.5.2"
 val sparkStreamingKafkaVer = "1.6.3"
-val sparkCassandraConnectorVer = "1.6.4"
+val cassandraConnectorVer = "1.6.4"
+val kafkaStreamingVer = "1.6.3"
 
 val akkaDep = Seq(
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
@@ -18,17 +19,25 @@ val akkaDep = Seq(
   "com.typesafe.akka" %% "akka-cluster-tools" % akkaVersion,
   "com.typesafe.akka" %% "akka-cluster-metrics" % akkaVersion
 )
+val sparkDep = Seq(
+  "org.apache.spark" % "spark-core_2.10" % "1.5.2"
+)
 val sparkStreamingDep = Seq(
-  "org.apache.spark" %% "spark-streaming" % sparkStreamingVer
+  "org.apache.spark" %% "spark-streaming" % sparkVersion
 )
 val sparkStreamingKafkaDep = Seq(
   "org.apache.spark" %% "spark-streaming-kafka" % sparkStreamingKafkaVer
 )
-val apiDep = akkaDep ++ Seq(
-  "org.apache.spark" %% "spark-streaming" % sparkStreamingVer,
-  "com.datastax.spark" %% "spark-cassandra-connector" % sparkCassandraConnectorVer,
-  "com.datastax.spark" %% "spark-cassandra-connector-embedded" % sparkCassandraConnectorVer
+val cassandraConnectorDep = Seq(
+  "com.datastax.spark" %% "spark-cassandra-connector" % cassandraConnectorVer,
+  "com.datastax.spark" %% "spark-cassandra-connector-embedded" % cassandraConnectorVer
 )
+val kafkaStreamingDep = Seq(
+  "org.apache.spark" %% "spark-streaming-kafka" % kafkaStreamingVer
+)
+
+val apiDep = akkaDep ++ sparkStreamingDep ++ cassandraConnectorDep ++ kafkaStreamingDep
+val analyticsDep = sparkStreamingDep ++ kafkaStreamingDep
 
 lazy val root = Project(
   id = "root",
@@ -55,4 +64,10 @@ lazy val client = Project(
   base = file("./FavColorClient"),
   settings = projectSettings ++ Seq(name := "fav-color-client") ++ Seq(libraryDependencies ++= akkaDep),
   dependencies = Seq(core)
+)
+
+lazy val analytics = Project(
+  id = "analytics",
+  base = file("./FavColorAnalytics"),
+  settings = projectSettings ++ Seq(name := "fav-color-analytics") ++ Seq(libraryDependencies ++= analyticsDep)
 )
