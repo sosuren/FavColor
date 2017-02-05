@@ -7,6 +7,8 @@ import akka.util.Timeout
 import com.example.favcolor.core.PollMessages._
 import com.typesafe.config.ConfigFactory
 
+import scala.util.Random
+
 object FavColorClient extends App {
 
   val port = if (args.isEmpty) 0 else args(0)
@@ -27,21 +29,31 @@ object FavColorClient extends App {
     ClusterClientSettings(system).withInitialContacts(initialContactPoints)
   ))
 
-  colorPoll ! ClusterClient.Send(favColorApiGuardianPath, Vote(ColorSelect.First), localAffinity =  false)
-  colorPoll ! ClusterClient.Send(favColorApiGuardianPath, Vote(ColorSelect.Second), localAffinity = false)
+  val rand = new Random
+  val maxVote = 44
 
-  import scala.concurrent.duration._
-  import scala.concurrent.ExecutionContext.Implicits.global
+  do {
 
-  implicit val timeout: Timeout = 2 seconds
+    (0 to rand.nextInt(maxVote)) foreach { _ =>
+      colorPoll ! ClusterClient.Send(favColorApiGuardianPath, Vote(ColorSelect.First), localAffinity =  false)
+      colorPoll ! ClusterClient.Send(favColorApiGuardianPath, Vote(ColorSelect.Second), localAffinity = false)
+    }
 
-  (colorPoll ? ClusterClient.Send(favColorApiGuardianPath, GetPoll, localAffinity =  false)).mapTo[Poll] map {
-    case poll =>
-      println(s"Got Poll: $poll")
 
-      (colorPoll ? ClusterClient.Send(favColorApiGuardianPath, NextColorPoll, localAffinity = false)).mapTo[Poll] map {
-        case nextPoll =>
-          println(s"Next Poll: $nextPoll")
-      }
-  }
+    import scala.concurrent.duration._
+    import scala.concurrent.ExecutionContext.Implicits.global
+
+    implicit val timeout: Timeout = 2 seconds
+
+    (colorPoll ? ClusterClient.Send(favColorApiGuardianPath, GetPoll, localAffinity =  false)).mapTo[Poll] map {
+      case poll =>
+        println(s"Got Poll: $poll")
+
+        (colorPoll ? ClusterClient.Send(favColorApiGuardianPath, NextColorPoll, localAffinity = false)).mapTo[Poll] map {
+          case nextPoll =>
+            println(s"Next Poll: $nextPoll")
+        }
+    }
+  } while(true)
+
 }
